@@ -35,7 +35,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStringBuilder>
 #include "customdialogs.h"
 #include "partitem.h"
+#ifdef __windows__
 #include "exceldata.h"
+#endif
 #include "dialogpart.h"
 #include <QMessageBox>
 #include <QSettings>
@@ -586,8 +588,12 @@ void MainWindow::uiUpdatePreview()
  */
 void MainWindow::slot_apply_settings()
 {
-    int valueFontSize = size_set[ui->cmValueTextSize->currentIndex()];
-    Qt::GlobalColor pointColor = color_set[ui->cmMarkerColor->currentIndex()];
+    int sizeIndex = ui->cmValueTextSize->currentIndex();
+    if (sizeIndex < 0 || sizeIndex >= int(sizeof(size_set)/sizeof(size_set[0]))) sizeIndex = 1;
+    int colorIndex = ui->cmMarkerColor->currentIndex();
+    if (colorIndex < 0 || colorIndex >= int(sizeof(color_set)/sizeof(color_set[0]))) colorIndex = 1;
+    int valueFontSize = size_set[sizeIndex];
+    Qt::GlobalColor pointColor = color_set[colorIndex];
     int pointSize = ui->leMarkerSize->text().toInt();
     QFont font("Arial Black",valueFontSize);
     font.setBold(1);
@@ -694,7 +700,7 @@ QStringList MainWindow::getAsSortedListBy(ItemSortBy type)
             result.append((*li));
         }
         else {
-            result.append((*li).split('#')[1]);
+            result.append((*li).section('#',-1));
         }
         ++li;
     }
