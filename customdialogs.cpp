@@ -20,7 +20,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPushButton>
 #include <QDialogButtonBox>
 #include <QLineEdit>
+#ifdef __windows__
 #include <Windows.h>
+#else
+#include <unistd.h>
+#endif
 #include "stdio.h"
 /** @brief
  *
@@ -48,13 +52,13 @@ void DialogCheckBoxes::inflate(const QStringList &list)
     while (count--)
     {
         QAbstractButton *pbutton;
-        if (m_type == CHECKBOX)
-        {
-            pbutton = new QCheckBox;
-        }
-        else if (m_type == RADIOBUTTON)
+        if (m_type == RADIOBUTTON)
         {
             pbutton = new QRadioButton;
+        }
+        else
+        {
+            pbutton = new QCheckBox;
         }
         QListWidgetItem *pwidgetitem = new QListWidgetItem;
         pbutton->setText(list[i++]);
@@ -266,7 +270,11 @@ void DialogProgressBar::setText(const QString &text)
  */
 void DialogProgressBar::sleep(qint32 sleep)
 {
+#ifdef __windows__
     Sleep(sleep);
+#else
+    usleep(sleep * 1000);
+#endif
 }
 
 void DialogProgressBar::setupUi()

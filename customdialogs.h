@@ -26,7 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QVBoxLayout>
 #include <QProgressBar>
 #include <QLabel>
-#include "PartItem.h"
+#include "partitem.h"
 
 class DialogCheckBoxes : public QDialog
 {

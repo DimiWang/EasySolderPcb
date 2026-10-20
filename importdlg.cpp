@@ -151,6 +151,8 @@ bool ImportDlg::convertDataTable(QHash<QString, PartItem > *partsMap
         foreach(const QStringList &line, importData)
         {
             PartItem item;
+            bool skip = false;
+            result = false;
             do{
 
                 // PART NAME
@@ -164,7 +166,7 @@ bool ImportDlg::convertDataTable(QHash<QString, PartItem > *partsMap
                         int r = QMessageBox::warning(0,"EasySolder.import"
                                                      ,QString("Duplicate Part name met %1").arg(name)
                                                      ,QMessageBox::Ignore|QMessageBox::Abort);
-                        if(r== QMessageBox::Ignore) continue;
+                        if(r== QMessageBox::Ignore) { skip = true; break; }
                         else return false;
                     }
                     item.name = name;
@@ -259,7 +261,12 @@ bool ImportDlg::convertDataTable(QHash<QString, PartItem > *partsMap
                 result =1;
             }while(0);
 
+            if(skip){
+                line_n++;
+                continue;
+            }
             if(result == false){
+                line_n++;
                 int r = QMessageBox::critical(0,"Error",error,QMessageBox::Ignore|QMessageBox::Abort);
                 if(r==QMessageBox::Abort) return false;
                 else continue;
@@ -283,6 +290,7 @@ void ImportDlg::showImportedFile()
         mp_model->clear();
         int rowsCount = m_imported_list.count();
         if(mp_setup->dataOffset>=0) rowsCount -= mp_setup->dataOffset;
+        if(rowsCount<0) rowsCount = 0;
 
         const int columnsCount = m_imported_list.at(0).count();
         mp_model->setRowCount(rowsCount);
@@ -351,13 +359,11 @@ QList<QStringList> ImportDlg::loadCSVAltium(const QString &fileName)
     QFile file(fileName);
     if (file.open(QFile::ReadOnly))
     {
-        QString line = file.readLine(1000);//dummy read header
         while(!file.atEnd())
         {
+            QString line = QString(file.readLine(1000));
             QStringList l ;
             splitCsv( &l ,line);
-            // read next line
-            line =QString(file.readLine(1000));
 
             //ignore all lines not 11 chains
             if(l.size()>0)
